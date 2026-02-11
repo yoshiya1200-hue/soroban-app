@@ -1297,6 +1297,41 @@
             showScreen('settings');
         }
 
+        // 設定の保存・復元
+        function saveSettings() {
+            try {
+                const settings = {
+                    minDigits: elements.minDigits.value,
+                    maxDigits: elements.maxDigits.value,
+                    count: elements.count.value,
+                    speed: elements.speed.value,
+                    interval: elements.interval.value,
+                    rounds: elements.rounds.value,
+                    showNumbers: elements.showNumbers.checked,
+                    includeSubtraction: elements.includeSubtraction.checked,
+                    language: elements.language.value
+                };
+                localStorage.setItem('yomiageZanSettings', JSON.stringify(settings));
+            } catch (e) {}
+        }
+
+        function loadSettings() {
+            try {
+                const data = localStorage.getItem('yomiageZanSettings');
+                if (!data) return;
+                const settings = JSON.parse(data);
+                if (settings.minDigits) elements.minDigits.value = settings.minDigits;
+                if (settings.maxDigits) elements.maxDigits.value = settings.maxDigits;
+                if (settings.count) elements.count.value = settings.count;
+                if (settings.speed) elements.speed.value = settings.speed;
+                if (settings.interval) elements.interval.value = settings.interval;
+                if (settings.rounds) elements.rounds.value = settings.rounds;
+                if (settings.showNumbers !== undefined) elements.showNumbers.checked = settings.showNumbers;
+                if (settings.includeSubtraction !== undefined) elements.includeSubtraction.checked = settings.includeSubtraction;
+                if (settings.language) elements.language.value = settings.language;
+            } catch (e) {}
+        }
+
         // ゲーム開始
         function startGame() {
             let minD = parseInt(elements.minDigits.value) || 1;
@@ -1317,6 +1352,7 @@
             gameState.currentRound = 1;
             gameState.correctCount = 0;
 
+            saveSettings();
             updateProgress();
             generateProblem();
             readNumbers();
@@ -1343,6 +1379,7 @@
 
         // 初期化実行
         init();
+        loadSettings();
         renderHistory();
     </script>
 </body>

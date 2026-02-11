@@ -932,6 +932,31 @@
             showScreen('settings');
         }
 
+        // 設定の保存・復元
+        function saveSettings() {
+            try {
+                const settings = {
+                    digits: elements.digits.value,
+                    count: elements.count.value,
+                    speed: elements.speed.value,
+                    rounds: elements.rounds.value
+                };
+                localStorage.setItem('flashAnzanSettings', JSON.stringify(settings));
+            } catch (e) {}
+        }
+
+        function loadSettings() {
+            try {
+                const data = localStorage.getItem('flashAnzanSettings');
+                if (!data) return;
+                const settings = JSON.parse(data);
+                if (settings.digits) elements.digits.value = settings.digits;
+                if (settings.count) elements.count.value = settings.count;
+                if (settings.speed) elements.speed.value = settings.speed;
+                if (settings.rounds) elements.rounds.value = settings.rounds;
+            } catch (e) {}
+        }
+
         // ゲーム開始
         function startGame() {
             gameState.digits = parseInt(elements.digits.value);
@@ -941,6 +966,7 @@
             gameState.currentRound = 1;
             gameState.correctCount = 0;
 
+            saveSettings();
             updateProgress();
             generateProblem();
             displayNumbers();
@@ -965,7 +991,8 @@
             }
         });
 
-        // 初期化時に履歴を表示
+        // 初期化時に設定を復元し履歴を表示
+        loadSettings();
         renderHistory();
     </script>
 </body>
