@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>そろばん練習ツール</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a2e1a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+
+        .container {
+            text-align: center;
+            width: 95%;
+            max-width: 500px;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 12px;
+            color: #ffeb3b;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #b0bec5;
+            margin-bottom: 48px;
+        }
+
+        .cards {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .card {
+            display: block;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 36px 32px;
+            text-decoration: none;
+            color: #fff;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .card-flash .card-title {
+            color: #4fc3f7;
+        }
+
+        .card-yomiage .card-title {
+            color: #81c784;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: #b0bec5;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>そろばん練習ツール</h1>
+        <p class="subtitle">トレーニングしたいモードを選んでください</p>
+
+        <div class="cards">
+            <a href="flash-anzan.html" class="card card-flash">
+                <div class="card-icon">&#9889;</div>
+                <div class="card-title">フラッシュ暗算</div>
+                <p class="card-desc">画面に次々と表示される数字を暗算で足し算。桁数・速度・問題数を自由に設定できます。</p>
+            </a>
+
+            <a href="yomiage-zan.html" class="card card-yomiage">
+                <div class="card-icon">&#128266;</div>
+                <div class="card-title">読み上げ算</div>
+                <p class="card-desc">音声で読み上げられる数字を聞いて暗算。引き算モードや日本語・英語の切り替えに対応。</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

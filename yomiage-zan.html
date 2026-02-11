@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>読み上げ算 練習ツール</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif;
+            background: linear-gradient(135deg, #1a2e1a 0%, #163e2e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            width: 95%;
+            max-width: 600px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            color: #81c784;
+        }
+
+        .settings {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .setting-group label {
+            font-size: 14px;
+            color: #b0bec5;
+        }
+
+        .setting-group select,
+        .setting-group input {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .setting-group select:focus,
+        .setting-group input:focus {
+            outline: 2px solid #81c784;
+        }
+
+        .setting-group select option {
+            background: #1a2e1a;
+            color: #fff;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
+            color: #1a2e1a;
+        }
+
+        .btn-answer {
+            background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+            color: #fff;
+        }
+
+        .btn-retry {
+            background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
+            color: #fff;
+        }
+
+        .display-area {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .status-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #81c784;
+            min-height: 160px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .number-display {
+            font-size: 120px;
+            font-weight: bold;
+            color: #ffeb3b;
+            text-shadow: 0 0 40px rgba(255, 235, 59, 0.5);
+        }
+
+        .number-hidden {
+            visibility: hidden;
+        }
+
+        .listening-icon {
+            font-size: 60px;
+            animation: pulse 1s infinite;
+        }
+
+        .answer-area {
+            display: none;
+            text-align: center;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 20px;
+            font-size: 32px;
+            text-align: center;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .answer-input:focus {
+            outline: 2px solid #81c784;
+        }
+
+        .result-area {
+            display: none;
+            text-align: center;
+        }
+
+        .result-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .result-correct {
+            color: #66bb6a;
+        }
+
+        .result-wrong {
+            color: #ef5350;
+        }
+
+        .result-text {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .result-detail {
+            font-size: 18px;
+            color: #b0bec5;
+            margin-bottom: 30px;
+        }
+
+        .score-area {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .score-title {
+            font-size: 24px;
+            color: #81c784;
+            margin-bottom: 20px;
+        }
+
+        .score-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #ffeb3b;
+            margin-bottom: 10px;
+        }
+
+        .score-stats {
+            font-size: 16px;
+            color: #b0bec5;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #81c784, #66bb6a);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #b0bec5;
+            margin-bottom: 20px;
+        }
+
+        .ready-text {
+            font-size: 36px;
+            color: #81c784;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .voice-warning {
+            background: rgba(255, 152, 0, 0.2);
+            border: 1px solid #ffa726;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #ffcc80;
+            display: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* 履歴エリア */
+        .history-area {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .history-title {
+            font-size: 16px;
+            color: #81c784;
+        }
+
+        .history-clear-btn {
+            padding: 5px 12px;
+            font-size: 12px;
+            background: rgba(239, 83, 80, 0.3);
+            border: 1px solid #ef5350;
+            border-radius: 5px;
+            color: #ef5350;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .history-clear-btn:hover {
+            background: rgba(239, 83, 80, 0.5);
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .history-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .history-item-settings {
+            color: #b0bec5;
+            font-size: 12px;
+        }
+
+        .history-item-date {
+            color: #78909c;
+            font-size: 11px;
+        }
+
+        .history-item-score {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .history-score-excellent {
+            background: rgba(102, 187, 106, 0.3);
+            color: #66bb6a;
+        }
+
+        .history-score-good {
+            background: rgba(255, 167, 38, 0.3);
+            color: #ffa726;
+        }
+
+        .history-score-normal {
+            background: rgba(239, 83, 80, 0.3);
+            color: #ef5350;
+        }
+
+        .history-empty {
+            text-align: center;
+            color: #78909c;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-row input[type="number"] {
+            width: 70px;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .input-row span {
+            color: #b0bec5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>読み上げ算</h1>
+
+        <div id="voiceWarning" class="voice-warning">
+            音声機能が利用できない可能性があります。ブラウザの設定を確認してください。
+        </div>
+
+        <!-- 設定画面 -->
+        <div id="settingsArea" class="settings">
+            <div class="setting-group">
+                <label>桁数</label>
+                <div class="input-row">
+                    <input type="number" id="minDigits" value="2" min="1" max="9">
+                    <span>桁 〜</span>
+                    <input type="number" id="maxDigits" value="3" min="1" max="9">
+                    <span>桁</span>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label>問題数（読み上げる数字の個数）</label>
+                <select id="count">
+                    <option value="3">3個</option>
+                    <option value="5" selected>5個</option>
+                    <option value="7">7個</option>
+                    <option value="10">10個</option>
+                    <option value="15">15個</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>読み上げ速度</label>
+                <select id="speed">
+                    <option value="0.8">ゆっくり</option>
+                    <option value="1.0">普通</option>
+                    <option value="1.3">速い</option>
+                    <option value="1.5">とても速い</option>
+                    <option value="1.8">【段位】高速</option>
+                    <option value="2.0">【段位】超高速</option>
+                    <option value="2.5" selected>【極】2.5倍速</option>
+                    <option value="3.0">【極】3倍速</option>
+                    <option value="4.0">【神】4倍速</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>数字間の間隔</label>
+                <select id="interval">
+                    <option value="1500">長め（1.5秒）</option>
+                    <option value="1000">普通（1秒）</option>
+                    <option value="700">短め（0.7秒）</option>
+                    <option value="500">【段位】0.5秒</option>
+                    <option value="300" selected>【段位】0.3秒</option>
+                    <option value="200">【極】0.2秒</option>
+                    <option value="100">【神】0.1秒</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>ラウンド数</label>
+                <select id="rounds">
+                    <option value="3" selected>3ラウンド</option>
+                    <option value="5">5ラウンド</option>
+                    <option value="10">10ラウンド</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="showNumbers">
+                    <label for="showNumbers">数字を画面にも表示する</label>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeSubtraction">
+                    <label for="includeSubtraction">引き算を含める</label>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label>言語</label>
+                <select id="language">
+                    <option value="ja" selected>日本語</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+
+            <button id="startBtn" class="btn btn-start">スタート</button>
+
+            <!-- 履歴エリア -->
+            <div id="historyArea" class="history-area">
+                <div class="history-header">
+                    <span class="history-title">実行履歴</span>
+                    <button id="clearHistoryBtn" class="history-clear-btn">履歴をクリア</button>
+                </div>
+                <div id="historyList" class="history-list">
+                    <div class="history-empty">まだ履歴がありません</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 読み上げ中表示エリア -->
+        <div id="displayArea" class="display-area">
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text">
+                ラウンド <span id="currentRound">1</span> / <span id="totalRounds">5</span>
+            </div>
+            <div class="status-display">
+                <div class="listening-icon">🔊</div>
+                <div id="statusText">読み上げ中...</div>
+                <div id="numberDisplay" class="number-display number-hidden"></div>
+            </div>
+        </div>
+
+        <!-- 回答エリア -->
+        <div id="answerArea" class="answer-area">
+            <div class="progress-bar">
+                <div id="progressFill2" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text">
+                ラウンド <span id="currentRound2">1</span> / <span id="totalRounds2">5</span>
+            </div>
+            <p style="margin-bottom: 20px; color: #b0bec5;">合計を入力してください</p>
+            <input type="number" id="answerInput" class="answer-input" placeholder="答え">
+            <button id="submitBtn" class="btn btn-answer">回答する</button>
+        </div>
+
+        <!-- 結果表示エリア -->
+        <div id="resultArea" class="result-area">
+            <div class="progress-bar">
+                <div id="progressFill3" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text">
+                ラウンド <span id="currentRound3">1</span> / <span id="totalRounds3">5</span>
+            </div>
+            <div id="resultIcon" class="result-icon"></div>
+            <div id="resultText" class="result-text"></div>
+            <div id="resultDetail" class="result-detail"></div>
+            <button id="nextBtn" class="btn btn-start">次の問題</button>
+        </div>
+
+        <!-- 最終スコアエリア -->
+        <div id="scoreArea" class="score-area">
+            <div class="score-title">結果発表</div>
+            <div id="scoreDisplay" class="score-display"></div>
+            <div id="scoreStats" class="score-stats"></div>
+            <button id="retryBtn" class="btn btn-retry">もう一度</button>
+        </div>
+    </div>
+
+    <script>
+        // 音声合成マネージャー
+        const SpeechManager = {
+            synth: window.speechSynthesis,
+            voiceJa: null,
+            voiceEn: null,
+            rate: 1.0,
+
+            init() {
+                // 音声を探す
+                const setVoices = () => {
+                    const voices = this.synth.getVoices();
+                    // 日本語音声を優先的に選択
+                    this.voiceJa = voices.find(v => v.lang.includes('ja')) ||
+                                   voices.find(v => v.lang.includes('JP')) ||
+                                   voices[0];
+                    // 英語音声を優先的に選択
+                    this.voiceEn = voices.find(v => v.lang.includes('en-US')) ||
+                                   voices.find(v => v.lang.includes('en-GB')) ||
+                                   voices.find(v => v.lang.includes('en')) ||
+                                   voices[0];
+                };
+
+                if (this.synth.getVoices().length > 0) {
+                    setVoices();
+                }
+                this.synth.onvoiceschanged = setVoices;
+            },
+
+            speak(text, rate = 1.0, lang = 'ja') {
+                return new Promise((resolve) => {
+                    // 前の発話をキャンセル
+                    this.synth.cancel();
+
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    if (lang === 'en') {
+                        utterance.voice = this.voiceEn;
+                        utterance.lang = 'en-US';
+                    } else {
+                        utterance.voice = this.voiceJa;
+                        utterance.lang = 'ja-JP';
+                    }
+                    utterance.rate = rate;
+                    utterance.pitch = 1.0;
+                    utterance.volume = 1.0;
+
+                    utterance.onend = () => resolve();
+                    utterance.onerror = () => resolve();
+
+                    this.synth.speak(utterance);
+                });
+            },
+
+            // 数字を日本語で読み上げるテキストに変換
+            numberToJapanese(num) {
+                if (num === 0) return 'ぜろ';
+                if (num === undefined || num === null || isNaN(num)) return '';
+
+                const digitNames = ['', 'いち', 'に', 'さん', 'よん', 'ご', 'ろく', 'なな', 'はち', 'きゅう'];
+                let result = '';
+
+                // 1万未満の数字を変換する内部関数
+                const convertUnder10000 = (n) => {
+                    let r = '';
+
+                    // 千の位
+                    const sen = Math.floor(n / 1000);
+                    if (sen > 0) {
+                        if (sen === 1) r += 'せん';
+                        else if (sen === 3) r += 'さんぜん';
+                        else if (sen === 8) r += 'はっせん';
+                        else r += digitNames[sen] + 'せん';
+                        n %= 1000;
+                    }
+
+                    // 百の位
+                    const hyaku = Math.floor(n / 100);
+                    if (hyaku > 0) {
+                        if (hyaku === 1) r += 'ひゃく';
+                        else if (hyaku === 3) r += 'さんびゃく';
+                        else if (hyaku === 6) r += 'ろっぴゃく';
+                        else if (hyaku === 8) r += 'はっぴゃく';
+                        else r += digitNames[hyaku] + 'ひゃく';
+                        n %= 100;
+                    }
+
+                    // 十の位
+                    const juu = Math.floor(n / 10);
+                    if (juu > 0) {
+                        if (juu === 1) r += 'じゅう';
+                        else r += digitNames[juu] + 'じゅう';
+                        n %= 10;
+                    }
+
+                    // 一の位
+                    if (n > 0) {
+                        r += digitNames[n];
+                    }
+
+                    return r;
+                };
+
+                // 億の位 (100000000以上)
+                const oku = Math.floor(num / 100000000);
+                if (oku > 0) {
+                    const okuPart = convertUnder10000(oku);
+                    result += (okuPart || 'いち') + 'おく';
+                    num %= 100000000;
+                }
+
+                // 万の位 (10000以上)
+                const man = Math.floor(num / 10000);
+                if (man > 0) {
+                    const manPart = convertUnder10000(man);
+                    result += (manPart || 'いち') + 'まん';
+                    num %= 10000;
+                }
+
+                // 1万未満
+                result += convertUnder10000(num);
+
+                return result || 'ぜろ';
+            },
+
+            isAvailable() {
+                return 'speechSynthesis' in window;
+            }
+        };
+
+        // 履歴管理
+        const HistoryManager = {
+            storageKey: 'yomiageZanHistory',
+            maxItems: 20,
+
+            load() {
+                try {
+                    const data = localStorage.getItem(this.storageKey);
+                    return data ? JSON.parse(data) : [];
+                } catch (e) {
+                    return [];
+                }
+            },
+
+            save(history) {
+                try {
+                    localStorage.setItem(this.storageKey, JSON.stringify(history));
+                } catch (e) {
+                    console.error('履歴の保存に失敗しました');
+                }
+            },
+
+            add(record) {
+                const history = this.load();
+                history.unshift(record);
+                if (history.length > this.maxItems) {
+                    history.pop();
+                }
+                this.save(history);
+            },
+
+            clear() {
+                localStorage.removeItem(this.storageKey);
+            },
+
+            formatDate(timestamp) {
+                const date = new Date(timestamp);
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
+                const hours = date.getHours().toString().padStart(2, '0');
+                const minutes = date.getMinutes().toString().padStart(2, '0');
+                return `${month}/${day} ${hours}:${minutes}`;
+            },
+
+            getSpeedLabel(speed) {
+                const speedMap = {
+                    0.8: 'ゆっくり',
+                    1.0: '普通',
+                    1.3: '速い',
+                    1.5: 'とても速い',
+                    1.8: '高速',
+                    2.0: '超高速',
+                    2.5: '2.5倍速',
+                    3.0: '3倍速',
+                    4.0: '4倍速'
+                };
+                return speedMap[speed] || `${speed}x`;
+            }
+        };
+
+        // サウンドマネージャー（効果音用）
+        const SoundManager = {
+            audioContext: null,
+
+            init() {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            },
+
+            ensureContext() {
+                if (!this.audioContext) {
+                    this.init();
+                }
+                if (this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+            },
+
+            playReady() {
+                this.ensureContext();
+                const ctx = this.audioContext;
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+
+                oscillator.frequency.value = 523.25;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.5);
+            },
+
+            playCorrect() {
+                this.ensureContext();
+                const ctx = this.audioContext;
+
+                const frequencies = [523.25, 659.25, 783.99];
+                frequencies.forEach((freq, i) => {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'sine';
+
+                    const startTime = ctx.currentTime + i * 0.1;
+                    gainNode.gain.setValueAtTime(0.3, startTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+
+                    oscillator.start(startTime);
+                    oscillator.stop(startTime + 0.3);
+                });
+            },
+
+            playWrong() {
+                this.ensureContext();
+                const ctx = this.audioContext;
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+
+                oscillator.frequency.value = 150;
+                oscillator.type = 'sawtooth';
+
+                gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.4);
+            },
+
+            playFinish() {
+                this.ensureContext();
+                const ctx = this.audioContext;
+
+                const notes = [
+                    { freq: 523.25, time: 0 },
+                    { freq: 659.25, time: 0.15 },
+                    { freq: 783.99, time: 0.3 },
+                    { freq: 1046.5, time: 0.45 }
+                ];
+
+                notes.forEach(note => {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+
+                    oscillator.frequency.value = note.freq;
+                    oscillator.type = 'sine';
+
+                    const startTime = ctx.currentTime + note.time;
+                    gainNode.gain.setValueAtTime(0.3, startTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+
+                    oscillator.start(startTime);
+                    oscillator.stop(startTime + 0.3);
+                });
+            },
+
+            playAnswerTime() {
+                this.ensureContext();
+                const ctx = this.audioContext;
+
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+
+                oscillator.frequency.setValueAtTime(987.77, ctx.currentTime);
+                oscillator.frequency.setValueAtTime(1318.51, ctx.currentTime + 0.1);
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.3);
+            }
+        };
+
+        // ゲーム状態
+        let gameState = {
+            minDigits: 2,
+            maxDigits: 3,
+            count: 5,
+            speed: 2.5,
+            interval: 300,
+            rounds: 3,
+            currentRound: 0,
+            correctCount: 0,
+            numbers: [],
+            operations: [],  // '+' または '-' を格納
+            correctAnswer: 0,
+            showNumbers: false,
+            includeSubtraction: false,
+            language: 'ja'
+        };
+
+        // DOM要素
+        const elements = {
+            settingsArea: document.getElementById('settingsArea'),
+            displayArea: document.getElementById('displayArea'),
+            answerArea: document.getElementById('answerArea'),
+            resultArea: document.getElementById('resultArea'),
+            scoreArea: document.getElementById('scoreArea'),
+            numberDisplay: document.getElementById('numberDisplay'),
+            statusText: document.getElementById('statusText'),
+            answerInput: document.getElementById('answerInput'),
+            startBtn: document.getElementById('startBtn'),
+            submitBtn: document.getElementById('submitBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            retryBtn: document.getElementById('retryBtn'),
+            minDigits: document.getElementById('minDigits'),
+            maxDigits: document.getElementById('maxDigits'),
+            count: document.getElementById('count'),
+            speed: document.getElementById('speed'),
+            interval: document.getElementById('interval'),
+            rounds: document.getElementById('rounds'),
+            showNumbers: document.getElementById('showNumbers'),
+            includeSubtraction: document.getElementById('includeSubtraction'),
+            language: document.getElementById('language'),
+            voiceWarning: document.getElementById('voiceWarning'),
+            progressFill: document.getElementById('progressFill'),
+            progressFill2: document.getElementById('progressFill2'),
+            progressFill3: document.getElementById('progressFill3'),
+            currentRound: document.getElementById('currentRound'),
+            currentRound2: document.getElementById('currentRound2'),
+            currentRound3: document.getElementById('currentRound3'),
+            totalRounds: document.getElementById('totalRounds'),
+            totalRounds2: document.getElementById('totalRounds2'),
+            totalRounds3: document.getElementById('totalRounds3'),
+            resultIcon: document.getElementById('resultIcon'),
+            resultText: document.getElementById('resultText'),
+            resultDetail: document.getElementById('resultDetail'),
+            scoreDisplay: document.getElementById('scoreDisplay'),
+            scoreStats: document.getElementById('scoreStats'),
+            historyList: document.getElementById('historyList'),
+            clearHistoryBtn: document.getElementById('clearHistoryBtn')
+        };
+
+        // 初期化
+        function init() {
+            SpeechManager.init();
+
+            if (!SpeechManager.isAvailable()) {
+                elements.voiceWarning.style.display = 'block';
+            }
+        }
+
+        // 画面切り替え
+        function showScreen(screenName) {
+            elements.settingsArea.style.display = 'none';
+            elements.displayArea.style.display = 'none';
+            elements.answerArea.style.display = 'none';
+            elements.resultArea.style.display = 'none';
+            elements.scoreArea.style.display = 'none';
+
+            switch (screenName) {
+                case 'settings':
+                    elements.settingsArea.style.display = 'grid';
+                    break;
+                case 'display':
+                    elements.displayArea.style.display = 'block';
+                    break;
+                case 'answer':
+                    elements.answerArea.style.display = 'block';
+                    break;
+                case 'result':
+                    elements.resultArea.style.display = 'block';
+                    break;
+                case 'score':
+                    elements.scoreArea.style.display = 'block';
+                    break;
+            }
+        }
+
+        // プログレスバー更新
+        function updateProgress() {
+            const progress = (gameState.currentRound / gameState.rounds) * 100;
+            elements.progressFill.style.width = progress + '%';
+            elements.progressFill2.style.width = progress + '%';
+            elements.progressFill3.style.width = progress + '%';
+
+            elements.currentRound.textContent = gameState.currentRound;
+            elements.currentRound2.textContent = gameState.currentRound;
+            elements.currentRound3.textContent = gameState.currentRound;
+            elements.totalRounds.textContent = gameState.rounds;
+            elements.totalRounds2.textContent = gameState.rounds;
+            elements.totalRounds3.textContent = gameState.rounds;
+        }
+
+        // ランダムな数字を生成
+        function generateNumber(digits) {
+            const min = Math.pow(10, digits - 1);
+            const max = Math.pow(10, digits) - 1;
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // 問題を生成
+        function generateProblem() {
+            gameState.numbers = [];
+            gameState.operations = [];
+            gameState.correctAnswer = 0;
+
+            for (let i = 0; i < gameState.count; i++) {
+                // minDigitsとmaxDigitsの間でランダムな桁数を選択
+                const digits = Math.floor(Math.random() * (gameState.maxDigits - gameState.minDigits + 1)) + gameState.minDigits;
+                let num = generateNumber(digits);
+                let operation = '+';
+
+                if (gameState.includeSubtraction && i > 0) {
+                    // 引き算を含める場合、50%の確率で引き算
+                    if (Math.random() < 0.5) {
+                        // 引き算の場合、結果がマイナスにならないように調整
+                        const maxSubtract = gameState.correctAnswer;
+                        if (maxSubtract > 0) {
+                            // 現在の合計より小さい数を生成
+                            const maxDigitsForSubtract = Math.min(
+                                gameState.maxDigits,
+                                Math.max(1, maxSubtract.toString().length)
+                            );
+                            const subtractDigits = Math.floor(Math.random() * (maxDigitsForSubtract - gameState.minDigits + 1)) + gameState.minDigits;
+                            num = generateNumber(Math.max(1, Math.min(subtractDigits, maxDigitsForSubtract)));
+
+                            // 現在の合計を超えないように調整
+                            if (num > maxSubtract) {
+                                num = Math.floor(Math.random() * maxSubtract) + 1;
+                            }
+                            operation = '-';
+                        }
+                    }
+                }
+
+                gameState.numbers.push(num);
+                gameState.operations.push(operation);
+
+                if (operation === '+') {
+                    gameState.correctAnswer += num;
+                } else {
+                    gameState.correctAnswer -= num;
+                }
+            }
+        }
+
+        // 数字を読み上げ
+        async function readNumbers() {
+            showScreen('display');
+            elements.statusText.textContent = '準備...';
+            elements.numberDisplay.textContent = '';
+            elements.numberDisplay.classList.add('number-hidden');
+            SoundManager.playReady();
+
+            await sleep(1000);
+
+            elements.statusText.textContent = '読み上げ中...';
+
+            const lang = gameState.language;
+
+            if (lang === 'ja') {
+                // 日本語モード
+                await SpeechManager.speak('ねがいましてわー', gameState.speed, 'ja');
+                await sleep(gameState.interval);
+
+                let prevOperation = '+';
+                for (let i = 0; i < gameState.numbers.length; i++) {
+                    const num = gameState.numbers[i];
+                    const japaneseNum = SpeechManager.numberToJapanese(num);
+                    const isLast = i === gameState.numbers.length - 1;
+                    const operation = gameState.operations[i];
+
+                    if (gameState.showNumbers) {
+                        const displayPrefix = operation === '-' ? '-' : '';
+                        elements.numberDisplay.textContent = displayPrefix + num;
+                        elements.numberDisplay.classList.remove('number-hidden');
+                    }
+
+                    let speechText = '';
+
+                    if (i === 0) {
+                        speechText = japaneseNum;
+                    } else if (operation === '-') {
+                        if (prevOperation !== '-') {
+                            speechText = 'ひいてわ' + japaneseNum;
+                        } else {
+                            speechText = japaneseNum;
+                        }
+                    } else {
+                        if (prevOperation === '-') {
+                            speechText = 'くわえて' + japaneseNum;
+                        } else {
+                            speechText = japaneseNum;
+                        }
+                    }
+
+                    if (isLast) {
+                        speechText += 'えんでわ';
+                    } else {
+                        speechText += 'えんなり';
+                    }
+
+                    await SpeechManager.speak(speechText, gameState.speed, 'ja');
+
+                    if (gameState.showNumbers) {
+                        elements.numberDisplay.classList.add('number-hidden');
+                    }
+
+                    if (!isLast) {
+                        await sleep(gameState.interval);
+                    }
+
+                    prevOperation = operation;
+                }
+            } else {
+                // 英語モード
+                await SpeechManager.speak('Starting with', gameState.speed, 'en');
+                await sleep(gameState.interval);
+
+                for (let i = 0; i < gameState.numbers.length; i++) {
+                    const num = gameState.numbers[i];
+                    const isLast = i === gameState.numbers.length - 1;
+                    const operation = gameState.operations[i];
+
+                    if (gameState.showNumbers) {
+                        const displayPrefix = operation === '-' ? '-' : '';
+                        elements.numberDisplay.textContent = displayPrefix + num;
+                        elements.numberDisplay.classList.remove('number-hidden');
+                    }
+
+                    let speechText = '';
+
+                    if (operation === '-') {
+                        // 引き算は常に「minus」を付ける
+                        speechText = 'minus ' + num;
+                    } else {
+                        speechText = String(num);
+                    }
+
+                    await SpeechManager.speak(speechText, gameState.speed, 'en');
+
+                    if (gameState.showNumbers) {
+                        elements.numberDisplay.classList.add('number-hidden');
+                    }
+
+                    if (!isLast) {
+                        await sleep(gameState.interval);
+                    }
+                }
+
+                // 最後に「That's all」
+                await sleep(300);
+                await SpeechManager.speak("That's all", gameState.speed, 'en');
+            }
+
+            elements.statusText.textContent = '完了！';
+            await sleep(500);
+
+            showAnswerScreen();
+        }
+
+        // 回答画面を表示
+        function showAnswerScreen() {
+            showScreen('answer');
+            SoundManager.playAnswerTime();
+            elements.answerInput.value = '';
+            elements.answerInput.focus();
+        }
+
+        // 回答をチェック
+        function checkAnswer() {
+            const userAnswer = parseInt(elements.answerInput.value);
+            const isCorrect = userAnswer === gameState.correctAnswer;
+
+            if (isCorrect) {
+                gameState.correctCount++;
+            }
+
+            showResult(isCorrect, userAnswer);
+        }
+
+        // 結果を表示
+        function showResult(isCorrect, userAnswer) {
+            showScreen('result');
+
+            if (isCorrect) {
+                elements.resultIcon.textContent = '⭕';
+                elements.resultIcon.className = 'result-icon result-correct';
+                elements.resultText.textContent = '正解！';
+                SoundManager.playCorrect();
+            } else {
+                elements.resultIcon.textContent = '❌';
+                elements.resultIcon.className = 'result-icon result-wrong';
+                elements.resultText.textContent = '不正解...';
+                SoundManager.playWrong();
+            }
+
+            // 計算式を構築
+            let numbersStr = '';
+            for (let i = 0; i < gameState.numbers.length; i++) {
+                if (i === 0) {
+                    numbersStr = gameState.numbers[i].toString();
+                } else {
+                    const op = gameState.operations[i] === '-' ? ' - ' : ' + ';
+                    numbersStr += op + gameState.numbers[i];
+                }
+            }
+            elements.resultDetail.innerHTML = `
+                ${numbersStr} = <strong>${gameState.correctAnswer}</strong><br>
+                あなたの回答: ${userAnswer || '(未入力)'}
+            `;
+
+            if (gameState.currentRound >= gameState.rounds) {
+                elements.nextBtn.textContent = '結果を見る';
+            } else {
+                elements.nextBtn.textContent = '次の問題';
+            }
+        }
+
+        // 最終スコアを表示
+        function showFinalScore() {
+            showScreen('score');
+            SoundManager.playFinish();
+
+            const percentage = Math.round((gameState.correctCount / gameState.rounds) * 100);
+            elements.scoreDisplay.textContent = `${gameState.correctCount} / ${gameState.rounds}`;
+            elements.scoreStats.textContent = `正答率: ${percentage}%`;
+
+            // 履歴に保存
+            const record = {
+                timestamp: Date.now(),
+                minDigits: gameState.minDigits,
+                maxDigits: gameState.maxDigits,
+                count: gameState.count,
+                speed: gameState.speed,
+                rounds: gameState.rounds,
+                correct: gameState.correctCount,
+                percentage: percentage
+            };
+            HistoryManager.add(record);
+        }
+
+        // 履歴を表示
+        function renderHistory() {
+            const history = HistoryManager.load();
+
+            if (history.length === 0) {
+                elements.historyList.innerHTML = '<div class="history-empty">まだ履歴がありません</div>';
+                return;
+            }
+
+            elements.historyList.innerHTML = history.map(record => {
+                let scoreClass = 'history-score-normal';
+                if (record.percentage >= 80) {
+                    scoreClass = 'history-score-excellent';
+                } else if (record.percentage >= 50) {
+                    scoreClass = 'history-score-good';
+                }
+
+                const digitsLabel = record.minDigits === record.maxDigits
+                    ? `${record.minDigits}桁`
+                    : `${record.minDigits}-${record.maxDigits}桁`;
+
+                return `
+                    <div class="history-item">
+                        <div class="history-item-info">
+                            <div class="history-item-settings">
+                                ${digitsLabel} × ${record.count}個 @ ${HistoryManager.getSpeedLabel(record.speed)}
+                            </div>
+                            <div class="history-item-date">${HistoryManager.formatDate(record.timestamp)}</div>
+                        </div>
+                        <div class="history-item-score ${scoreClass}">
+                            ${record.correct}/${record.rounds} (${record.percentage}%)
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 履歴をクリア
+        function clearHistory() {
+            if (confirm('履歴をすべて削除しますか？')) {
+                HistoryManager.clear();
+                renderHistory();
+            }
+        }
+
+        // 次のラウンドへ
+        function nextRound() {
+            if (gameState.currentRound >= gameState.rounds) {
+                showFinalScore();
+            } else {
+                gameState.currentRound++;
+                updateProgress();
+                generateProblem();
+                readNumbers();
+            }
+        }
+
+        // ゲームをリセット
+        function resetGame() {
+            gameState.currentRound = 0;
+            gameState.correctCount = 0;
+            gameState.numbers = [];
+            gameState.operations = [];
+            gameState.correctAnswer = 0;
+            renderHistory();
+            showScreen('settings');
+        }
+
+        // ゲーム開始
+        function startGame() {
+            let minD = parseInt(elements.minDigits.value) || 1;
+            let maxD = parseInt(elements.maxDigits.value) || 1;
+            // 最小・最大の整合性を保証
+            if (minD > maxD) {
+                [minD, maxD] = [maxD, minD];
+            }
+            gameState.minDigits = Math.max(1, Math.min(9, minD));
+            gameState.maxDigits = Math.max(1, Math.min(9, maxD));
+            gameState.count = parseInt(elements.count.value);
+            gameState.speed = parseFloat(elements.speed.value);
+            gameState.interval = parseInt(elements.interval.value);
+            gameState.rounds = parseInt(elements.rounds.value);
+            gameState.showNumbers = elements.showNumbers.checked;
+            gameState.includeSubtraction = elements.includeSubtraction.checked;
+            gameState.language = elements.language.value;
+            gameState.currentRound = 1;
+            gameState.correctCount = 0;
+
+            updateProgress();
+            generateProblem();
+            readNumbers();
+        }
+
+        // ユーティリティ: sleep関数
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // イベントリスナー
+        elements.startBtn.addEventListener('click', startGame);
+        elements.submitBtn.addEventListener('click', checkAnswer);
+        elements.nextBtn.addEventListener('click', nextRound);
+        elements.retryBtn.addEventListener('click', resetGame);
+        elements.clearHistoryBtn.addEventListener('click', clearHistory);
+
+        // Enterキーで回答
+        elements.answerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // 初期化実行
+        init();
+        renderHistory();
+    </script>
+</body>
+</html>
