@@ -111,17 +111,22 @@
             display: none;
             text-align: center;
             padding: 60px 20px;
+            min-height: 350px;
         }
 
         .number-display {
-            font-size: 120px;
+            font-size: min(120px, 18vw);
             font-weight: bold;
             color: #ffeb3b;
             text-shadow: 0 0 40px rgba(255, 235, 59, 0.5);
-            min-height: 160px;
+            height: 180px;
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        .number-display .number-hidden {
+            visibility: hidden;
         }
 
         .answer-area {
@@ -777,16 +782,17 @@
 
             for (let i = 0; i < gameState.numbers.length; i++) {
                 elements.numberDisplay.textContent = gameState.numbers[i];
+                elements.numberDisplay.style.visibility = 'visible';
                 SoundManager.playNumber();
                 await sleep(gameState.speed);
 
                 if (i < gameState.numbers.length - 1) {
-                    elements.numberDisplay.textContent = '';
+                    elements.numberDisplay.style.visibility = 'hidden';
                     await sleep(gapTime);
                 }
             }
 
-            elements.numberDisplay.textContent = '';
+            elements.numberDisplay.style.visibility = 'hidden';
             await sleep(300);
 
             showAnswerScreen();
