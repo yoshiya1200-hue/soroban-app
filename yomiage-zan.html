@@ -295,6 +295,26 @@
             color: #81c784;
         }
 
+        .history-btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .history-copy-btn {
+            padding: 5px 12px;
+            font-size: 12px;
+            background: rgba(129, 199, 132, 0.3);
+            border: 1px solid #81c784;
+            border-radius: 5px;
+            color: #81c784;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .history-copy-btn:hover {
+            background: rgba(129, 199, 132, 0.5);
+        }
+
         .history-clear-btn {
             padding: 5px 12px;
             font-size: 12px;
@@ -490,7 +510,10 @@
             <div id="historyArea" class="history-area">
                 <div class="history-header">
                     <span class="history-title">実行履歴</span>
-                    <button id="clearHistoryBtn" class="history-clear-btn">履歴をクリア</button>
+                    <div class="history-btn-group">
+                        <button id="copyHistoryBtn" class="history-copy-btn">履歴をコピー</button>
+                        <button id="clearHistoryBtn" class="history-clear-btn">履歴をクリア</button>
+                    </div>
                 </div>
                 <div id="historyList" class="history-list">
                     <div class="history-empty">まだ履歴がありません</div>
@@ -926,7 +949,8 @@
             scoreDisplay: document.getElementById('scoreDisplay'),
             scoreStats: document.getElementById('scoreStats'),
             historyList: document.getElementById('historyList'),
-            clearHistoryBtn: document.getElementById('clearHistoryBtn')
+            clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+            copyHistoryBtn: document.getElementById('copyHistoryBtn')
         };
 
         // 初期化
@@ -1266,6 +1290,36 @@
             }).join('');
         }
 
+        // 履歴をクリップボードにコピー
+        function copyHistory() {
+            const history = HistoryManager.load();
+            if (history.length === 0) {
+                alert('コピーする履歴がありません');
+                return;
+            }
+
+            const recent = history.slice(0, 5);
+            const lines = ['【読み上げ算 直近の記録】'];
+            recent.forEach((record, i) => {
+                const date = HistoryManager.formatDate(record.timestamp);
+                const digitsLabel = record.minDigits === record.maxDigits
+                    ? `${record.minDigits}桁`
+                    : `${record.minDigits}-${record.maxDigits}桁`;
+                const settings = `${digitsLabel} × ${record.count}個 @ ${HistoryManager.getSpeedLabel(record.speed)}`;
+                const score = `${record.correct}/${record.rounds}問正解 (${record.percentage}%)`;
+                lines.push(`${i + 1}. ${date} ${settings} → ${score}`);
+            });
+
+            navigator.clipboard.writeText(lines.join('\n')).then(() => {
+                const btn = elements.copyHistoryBtn;
+                const original = btn.textContent;
+                btn.textContent = 'コピーしました!';
+                setTimeout(() => { btn.textContent = original; }, 1500);
+            }).catch(() => {
+                alert('コピーに失敗しました');
+            });
+        }
+
         // 履歴をクリア
         function clearHistory() {
             if (confirm('履歴をすべて削除しますか？')) {
@@ -1369,6 +1423,7 @@
         elements.nextBtn.addEventListener('click', nextRound);
         elements.retryBtn.addEventListener('click', resetGame);
         elements.clearHistoryBtn.addEventListener('click', clearHistory);
+        elements.copyHistoryBtn.addEventListener('click', copyHistory);
 
         // Enterキーで回答
         elements.answerInput.addEventListener('keypress', (e) => {
