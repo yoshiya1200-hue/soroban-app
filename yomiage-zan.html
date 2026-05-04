@@ -412,10 +412,31 @@
         .input-row span {
             color: #b0bec5;
         }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .nav-links a {
+            color: #b0bec5;
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <nav class="nav-links">
+            <a href="index.html">ホーム</a>
+            <a href="progress.html">練習の記録</a>
+        </nav>
         <h1>読み上げ算</h1>
 
         <div id="voiceWarning" class="voice-warning">
