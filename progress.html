@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>練習の記録 - そろばん練習ツール</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a2e1a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px 0;
+            color: #fff;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #b0bec5;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #fff;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #ffeb3b;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        /* カウントダウン */
+        .countdown-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .countdown-label {
+            font-size: 14px;
+            color: #b0bec5;
+            margin-bottom: 8px;
+        }
+
+        .countdown-days {
+            font-size: 56px;
+            font-weight: bold;
+            color: #ffeb3b;
+            line-height: 1.1;
+        }
+
+        .countdown-days span {
+            font-size: 20px;
+            color: #b0bec5;
+            font-weight: normal;
+        }
+
+        .countdown-date {
+            font-size: 13px;
+            color: #78909c;
+            margin-top: 8px;
+        }
+
+        .countdown-passed {
+            font-size: 20px;
+            color: #81c784;
+            font-weight: bold;
+        }
+
+        /* 統計カード */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .stat-value.streak {
+            color: #ffa726;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #b0bec5;
+            margin-top: 4px;
+        }
+
+        /* 目標プログレスバー */
+        .goal-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .goal-title {
+            font-size: 14px;
+            color: #b0bec5;
+        }
+
+        .goal-count {
+            font-size: 14px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #66bb6a, #81c784);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        .goal-percentage {
+            text-align: right;
+            font-size: 13px;
+            color: #81c784;
+            margin-top: 6px;
+            font-weight: bold;
+        }
+
+        /* カレンダーヒートマップ */
+        .calendar-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .calendar-title {
+            font-size: 16px;
+            color: #4fc3f7;
+            margin-bottom: 16px;
+        }
+
+        .calendar-wrapper {
+            overflow-x: auto;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-rows: repeat(7, 12px);
+            grid-auto-columns: 12px;
+            grid-auto-flow: column;
+            gap: 3px;
+        }
+
+        .calendar-cell {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .calendar-cell.level-1 {
+            background: rgba(129, 199, 132, 0.3);
+        }
+
+        .calendar-cell.level-2 {
+            background: rgba(129, 199, 132, 0.55);
+        }
+
+        .calendar-cell.level-3 {
+            background: #81c784;
+        }
+
+        .calendar-cell.today {
+            outline: 2px solid #ffeb3b;
+            outline-offset: -1px;
+        }
+
+        .calendar-months {
+            display: flex;
+            margin-bottom: 6px;
+            font-size: 11px;
+            color: #78909c;
+        }
+
+        .calendar-months span {
+            flex-shrink: 0;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-rows: repeat(7, 12px);
+            gap: 3px;
+            margin-right: 6px;
+            font-size: 10px;
+            color: #78909c;
+        }
+
+        .calendar-body {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .calendar-legend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 12px;
+            font-size: 11px;
+            color: #78909c;
+        }
+
+        .legend-cell {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .calendar-streak {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #ffa726;
+            font-weight: bold;
+        }
+
+        /* 設定セクション */
+        .settings-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .settings-title {
+            font-size: 16px;
+            color: #b0bec5;
+            margin-bottom: 16px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .setting-label {
+            font-size: 14px;
+            color: #cfd8dc;
+        }
+
+        .setting-input {
+            width: 160px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            text-align: right;
+        }
+
+        .setting-input:focus {
+            outline: none;
+            border-color: #4fc3f7;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 4px;
+            background: rgba(79, 195, 247, 0.3);
+            border: 1px solid #4fc3f7;
+            border-radius: 10px;
+            color: #4fc3f7;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .save-btn:hover {
+            background: rgba(79, 195, 247, 0.5);
+        }
+
+        .save-msg {
+            text-align: center;
+            font-size: 13px;
+            color: #81c784;
+            margin-top: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .save-msg.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">&larr; ホームに戻る</a>
+        <h1>練習の記録</h1>
+
+        <!-- カウントダウン -->
+        <div class="countdown-section">
+            <div class="countdown-label">全国大会まで</div>
+            <div id="countdown" class="countdown-days"></div>
+            <div id="countdownDate" class="countdown-date"></div>
+        </div>
+
+        <!-- 統計カード -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div id="totalSessions" class="stat-value">0</div>
+                <div class="stat-label">総練習回数</div>
+            </div>
+            <div class="stat-card">
+                <div id="totalProblems" class="stat-value">0</div>
+                <div class="stat-label">総問題数</div>
+            </div>
+            <div class="stat-card">
+                <div id="correctRate" class="stat-value">-</div>
+                <div class="stat-label">通算正答率</div>
+            </div>
+            <div class="stat-card">
+                <div id="currentStreak" class="stat-value streak">0</div>
+                <div class="stat-label">連続練習日数</div>
+            </div>
+        </div>
+
+        <!-- 目標プログレスバー -->
+        <div class="goal-section">
+            <div class="goal-header">
+                <span class="goal-title">目標達成度</span>
+                <span id="goalCount" class="goal-count">0 / 0 回</span>
+            </div>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div id="goalPercentage" class="goal-percentage">0%</div>
+        </div>
+
+        <!-- カレンダーヒートマップ -->
+        <div class="calendar-section">
+            <div class="calendar-title">練習カレンダー</div>
+            <div id="calendarMonths" class="calendar-months"></div>
+            <div class="calendar-body">
+                <div class="calendar-days">
+                    <span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span><span>日</span>
+                </div>
+                <div class="calendar-wrapper">
+                    <div id="calendarGrid" class="calendar-grid"></div>
+                </div>
+            </div>
+            <div class="calendar-legend">
+                <span>少</span>
+                <div class="legend-cell" style="background: rgba(255,255,255,0.05)"></div>
+                <div class="legend-cell" style="background: rgba(129,199,132,0.3)"></div>
+                <div class="legend-cell" style="background: rgba(129,199,132,0.55)"></div>
+                <div class="legend-cell" style="background: #81c784"></div>
+                <span>多</span>
+            </div>
+            <div id="streakDisplay" class="calendar-streak"></div>
+        </div>
+
+        <!-- 設定 -->
+        <div class="settings-section">
+            <div class="settings-title">設定</div>
+            <div class="setting-row">
+                <label class="setting-label">大会の日</label>
+                <input type="date" id="targetDate" class="setting-input">
+            </div>
+            <div class="setting-row">
+                <label class="setting-label">目標練習回数</label>
+                <input type="number" id="goalSessions" class="setting-input" min="1" placeholder="500">
+            </div>
+            <button id="saveBtn" class="save-btn">設定を保存</button>
+            <div id="saveMsg" class="save-msg">保存しました</div>
+        </div>
+    </div>
+
+    <script>
+        // 設定管理
+        const DEFAULT_SETTINGS = {
+            targetDate: '2025-08-03',
+            goalSessions: 500
+        };
+
+        function loadSettings() {
+            try {
+                const data = localStorage.getItem('progressSettings');
+                return data ? { ...DEFAULT_SETTINGS, ...JSON.parse(data) } : { ...DEFAULT_SETTINGS };
+            } catch (e) {
+                return { ...DEFAULT_SETTINGS };
+            }
+        }
+
+        function saveSettings(settings) {
+            localStorage.setItem('progressSettings', JSON.stringify(settings));
+        }
+
+        // 練習ログ読み込み
+        function loadPracticeLog() {
+            try {
+                const data = localStorage.getItem('practiceLog');
+                return data ? JSON.parse(data) : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function savePracticeLog(log) {
+            localStorage.setItem('practiceLog', JSON.stringify(log));
+        }
+
+        // 既存履歴からのマイグレーション
+        function migrateExistingHistory() {
+            if (localStorage.getItem('practiceLogMigrated')) return;
+
+            const log = loadPracticeLog();
+
+            function formatDateKey(date) {
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
+
+            const flashHistory = JSON.parse(localStorage.getItem('flashAnzanHistory') || '[]');
+            flashHistory.forEach(record => {
+                const date = new Date(record.timestamp);
+                const key = formatDateKey(date);
+                if (!log[key]) log[key] = { sessions: 0, problems: 0, correct: 0, flash: 0, yomiage: 0 };
+                log[key].sessions += 1;
+                log[key].problems += record.rounds;
+                log[key].correct += record.correct;
+                log[key].flash += 1;
+            });
+
+            const yomiageHistory = JSON.parse(localStorage.getItem('yomiageZanHistory') || '[]');
+            yomiageHistory.forEach(record => {
+                const date = new Date(record.timestamp);
+                const key = formatDateKey(date);
+                if (!log[key]) log[key] = { sessions: 0, problems: 0, correct: 0, flash: 0, yomiage: 0 };
+                log[key].sessions += 1;
+                log[key].problems += record.rounds;
+                log[key].correct += record.correct;
+                log[key].yomiage += 1;
+            });
+
+            savePracticeLog(log);
+            localStorage.setItem('practiceLogMigrated', '1');
+        }
+
+        // 日付キー生成
+        function formatDateKey(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        // カウントダウン表示
+        function renderCountdown(settings) {
+            const target = new Date(settings.targetDate + 'T00:00:00');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const diff = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+
+            const el = document.getElementById('countdown');
+            const dateEl = document.getElementById('countdownDate');
+
+            if (diff > 0) {
+                el.innerHTML = `${diff} <span>日</span>`;
+            } else if (diff === 0) {
+                el.innerHTML = `<span class="countdown-passed">本日が大会です!</span>`;
+            } else {
+                el.innerHTML = `<span class="countdown-passed">大会おつかれさまでした!</span>`;
+            }
+
+            const targetDate = new Date(settings.targetDate + 'T00:00:00');
+            const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+            const dateStr = `${targetDate.getFullYear()}年${targetDate.getMonth() + 1}月${targetDate.getDate()}日(${weekdays[targetDate.getDay()]})`;
+            dateEl.textContent = dateStr;
+        }
+
+        // 統計計算
+        function computeStats(log) {
+            let totalSessions = 0;
+            let totalProblems = 0;
+            let totalCorrect = 0;
+
+            Object.values(log).forEach(day => {
+                totalSessions += day.sessions;
+                totalProblems += day.problems;
+                totalCorrect += day.correct;
+            });
+
+            const correctRate = totalProblems > 0 ? Math.round((totalCorrect / totalProblems) * 100) : 0;
+
+            return { totalSessions, totalProblems, totalCorrect, correctRate };
+        }
+
+        // ストリーク計算
+        function computeStreak(log) {
+            let streak = 0;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let checkDate = new Date(today);
+            const todayKey = formatDateKey(checkDate);
+
+            // 今日まだ練習していない場合は昨日から数える
+            if (!log[todayKey] || log[todayKey].sessions === 0) {
+                checkDate.setDate(checkDate.getDate() - 1);
+            }
+
+            while (true) {
+                const key = formatDateKey(checkDate);
+                if (log[key] && log[key].sessions > 0) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+
+            return streak;
+        }
+
+        // 統計表示
+        function renderStats(log) {
+            const stats = computeStats(log);
+            const streak = computeStreak(log);
+
+            document.getElementById('totalSessions').textContent = stats.totalSessions;
+            document.getElementById('totalProblems').textContent = stats.totalProblems;
+            document.getElementById('correctRate').textContent = stats.totalProblems > 0 ? stats.correctRate + '%' : '-';
+            document.getElementById('currentStreak').textContent = streak;
+            document.getElementById('streakDisplay').textContent = streak > 0 ? `${streak} 日連続で練習中!` : '';
+        }
+
+        // 目標プログレス表示
+        function renderGoal(log, settings) {
+            const stats = computeStats(log);
+            const goal = settings.goalSessions;
+            const current = stats.totalSessions;
+            const percentage = Math.min(100, Math.round((current / goal) * 100));
+
+            document.getElementById('goalCount').textContent = `${current} / ${goal} 回`;
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('goalPercentage').textContent = percentage + '%';
+        }
+
+        // カレンダー表示
+        function renderCalendar(log) {
+            const weeksToShow = 16;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayKey = formatDateKey(today);
+
+            // 開始日を計算（月曜始まり、16週前）
+            const startDate = new Date(today);
+            const todayDow = (today.getDay() + 6) % 7; // 月=0, 日=6
+            startDate.setDate(startDate.getDate() - todayDow - (weeksToShow - 1) * 7);
+
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+
+            const totalDays = weeksToShow * 7;
+            for (let i = 0; i < totalDays; i++) {
+                const cellDate = new Date(startDate);
+                cellDate.setDate(startDate.getDate() + i);
+                const key = formatDateKey(cellDate);
+
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell';
+
+                if (cellDate > today) {
+                    cell.style.opacity = '0.3';
+                } else {
+                    const sessions = (log[key] && log[key].sessions) || 0;
+                    const level = getActivityLevel(sessions);
+                    if (level > 0) cell.classList.add('level-' + level);
+                }
+
+                if (key === todayKey) {
+                    cell.classList.add('today');
+                }
+
+                cell.title = `${cellDate.getMonth() + 1}/${cellDate.getDate()}: ${(log[key] && log[key].sessions) || 0}回`;
+                grid.appendChild(cell);
+            }
+
+            // 月ラベル
+            renderMonthLabels(startDate, weeksToShow);
+        }
+
+        function renderMonthLabels(startDate, weeksToShow) {
+            const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+            const monthsEl = document.getElementById('calendarMonths');
+            monthsEl.innerHTML = '';
+
+            // 左のday labelsの幅分のオフセット
+            const offset = document.createElement('span');
+            offset.style.width = '24px';
+            offset.style.flexShrink = '0';
+            monthsEl.appendChild(offset);
+
+            let lastMonth = -1;
+            for (let week = 0; week < weeksToShow; week++) {
+                const weekStart = new Date(startDate);
+                weekStart.setDate(startDate.getDate() + week * 7);
+                const month = weekStart.getMonth();
+
+                const span = document.createElement('span');
+                span.style.width = '15px'; // 12px cell + 3px gap
+                span.style.flexShrink = '0';
+
+                if (month !== lastMonth) {
+                    span.textContent = monthNames[month];
+                    span.style.width = 'auto';
+                    span.style.marginRight = '0px';
+                    lastMonth = month;
+                }
+
+                monthsEl.appendChild(span);
+            }
+        }
+
+        function getActivityLevel(sessions) {
+            if (sessions === 0) return 0;
+            if (sessions <= 2) return 1;
+            if (sessions <= 4) return 2;
+            return 3;
+        }
+
+        // 設定UI
+        function initSettings(settings) {
+            document.getElementById('targetDate').value = settings.targetDate;
+            document.getElementById('goalSessions').value = settings.goalSessions;
+        }
+
+        function onSave() {
+            const targetDate = document.getElementById('targetDate').value;
+            const goalSessions = parseInt(document.getElementById('goalSessions').value) || 500;
+
+            const settings = { targetDate, goalSessions };
+            saveSettings(settings);
+
+            // 再描画
+            const log = loadPracticeLog();
+            renderCountdown(settings);
+            renderGoal(log, settings);
+
+            // 保存メッセージ表示
+            const msg = document.getElementById('saveMsg');
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 2000);
+        }
+
+        // 初期化
+        function init() {
+            migrateExistingHistory();
+
+            const settings = loadSettings();
+            const log = loadPracticeLog();
+
+            renderCountdown(settings);
+            renderStats(log);
+            renderGoal(log, settings);
+            renderCalendar(log);
+            initSettings(settings);
+
+            document.getElementById('saveBtn').addEventListener('click', onSave);
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -761,6 +761,49 @@
             }
         };
 
+        // 練習ログ管理（日別集計）
+        const PracticeLogManager = {
+            storageKey: 'practiceLog',
+
+            getTodayKey() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            },
+
+            load() {
+                try {
+                    const data = localStorage.getItem(this.storageKey);
+                    return data ? JSON.parse(data) : {};
+                } catch (e) {
+                    return {};
+                }
+            },
+
+            save(log) {
+                try {
+                    localStorage.setItem(this.storageKey, JSON.stringify(log));
+                } catch (e) {
+                    console.error('練習ログの保存に失敗しました');
+                }
+            },
+
+            record(mode, problems, correct) {
+                const log = this.load();
+                const today = this.getTodayKey();
+                if (!log[today]) {
+                    log[today] = { sessions: 0, problems: 0, correct: 0, flash: 0, yomiage: 0 };
+                }
+                log[today].sessions += 1;
+                log[today].problems += problems;
+                log[today].correct += correct;
+                log[today][mode] += 1;
+                this.save(log);
+            }
+        };
+
         // サウンドマネージャー（効果音用）
         const SoundManager = {
             audioContext: null,
@@ -1251,6 +1294,7 @@
                 percentage: percentage
             };
             HistoryManager.add(record);
+            PracticeLogManager.record('yomiage', gameState.rounds, gameState.correctCount);
         }
 
         // 履歴を表示
