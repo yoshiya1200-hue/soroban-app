@@ -1315,7 +1315,9 @@
                 percentage: percentage
             };
             HistoryManager.add(record);
-            PracticeLogManager.record('yomiage', gameState.rounds, gameState.correctCount);
+            if (gameState.correctCount > 0) {
+                PracticeLogManager.record('yomiage', gameState.rounds, gameState.correctCount);
+            }
         }
 
         // 履歴を表示
