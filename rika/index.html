@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🔬 理科アドベンチャー｜小学6年生</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Yu Gothic",sans-serif;background:linear-gradient(135deg,#e8f5e9,#e3f2fd 55%,#fff8e1);color:#263238}
+button{font:inherit}.app{max-width:1050px;margin:auto;padding:18px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#fff;border-radius:24px;padding:16px 20px;box-shadow:0 8px 28px #0001;position:sticky;top:10px;z-index:5}.logo{font-weight:900;font-size:22px}.stats{display:flex;gap:8px;flex-wrap:wrap}.pill{background:#f5f7f8;border-radius:999px;padding:8px 12px;font-weight:800}.screen{display:none}.screen.active{display:block}.hero{margin:22px 0;background:linear-gradient(135deg,#1565c0,#00897b);color:#fff;border-radius:30px;padding:32px;text-align:center;box-shadow:0 14px 35px #0002}.hero .emoji{font-size:68px}.hero h1{font-size:38px;margin:4px}.hero p{font-size:17px}.btn{border:0;border-radius:16px;padding:13px 20px;font-weight:900;cursor:pointer;box-shadow:0 5px 12px #0002}.primary{background:#ff9800;color:#fff}.blue{background:#1976d2;color:#fff}.green{background:#2e7d32;color:#fff}.light{background:#fff}.back{background:#eceff1;margin-bottom:14px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.unit{background:#fff;border-radius:24px;padding:20px;box-shadow:0 7px 22px #0001;min-height:180px}.unit.lock{filter:grayscale(.7);opacity:.65}.unit .big{font-size:45px}.unit h3{margin:5px 0}.meter{height:10px;background:#e0e0e0;border-radius:99px;overflow:hidden}.meter i{display:block;height:100%;background:#43a047}.section{background:#fff;border-radius:24px;padding:24px;box-shadow:0 7px 22px #0001;margin-bottom:16px}.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.learn-card{background:#f8fbff;border:2px solid #e3f2fd;border-radius:20px;padding:18px}.learn-card b{font-size:20px}.experiment{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}.scene{height:280px;border-radius:24px;background:linear-gradient(#bbdefb,#e3f2fd);position:relative;overflow:hidden}.jar{position:absolute;left:22%;bottom:28px;width:56%;height:190px;border:7px solid #90a4ae;border-top:0;border-radius:0 0 35px 35px;background:#ffffff77}.flame{position:absolute;left:48%;bottom:55px;font-size:52px;filter:drop-shadow(0 0 8px #ff9800);transition:.4s}.flame.off{opacity:.15;transform:scale(.55)}.gas{position:absolute;left:25%;top:25px;font-size:30px}.resultbox{padding:15px;border-radius:16px;background:#fff8e1;font-weight:800;min-height:58px}.choices{display:grid;gap:10px}.choice{border:3px solid #e0e0e0;background:#fff;border-radius:16px;padding:14px;text-align:left;cursor:pointer;font-weight:800}.choice:hover{border-color:#ffb74d}.choice.correct{background:#e8f5e9;border-color:#43a047}.choice.wrong{background:#ffebee;border-color:#e53935}.feedback{margin-top:14px;padding:14px;border-radius:16px;display:none}.ok{background:#e8f5e9}.ng{background:#ffebee}.quizhead{display:flex;justify-content:space-between;font-weight:900;color:#ef6c00}.progress{height:12px;background:#e0e0e0;border-radius:99px;overflow:hidden;margin:10px 0 20px}.progress i{display:block;height:100%;background:#ff9800;width:0}.question{font-size:25px;font-weight:900;line-height:1.5}.result{text-align:center}.rank{font-size:70px}.badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.badgecard{background:#fff;border-radius:20px;padding:18px;text-align:center;box-shadow:0 5px 15px #0001}.badgecard.locked{opacity:.35}.badgecard div{font-size:42px}.note{color:#607d8b;line-height:1.7}.mistake{background:#fff3e0;border-radius:16px;padding:14px;margin:8px 0}.footer{text-align:center;color:#78909c;padding:25px}
+@media(max-width:760px){.grid,.cards,.experiment{grid-template-columns:1fr}.badge-grid{grid-template-columns:repeat(2,1fr)}.top{position:static;align-items:flex-start;flex-direction:column}.hero h1{font-size:30px}.question{font-size:21px}}
+</style></head>
+<body><div class="app">
+<header class="top"><div class="logo">🔬 理科アドベンチャー</div><div class="stats"><span class="pill">⭐ Lv.<b id="level">1</b></span><span class="pill">✨ XP <b id="xp">0</b></span><span class="pill">🔥 <b id="streak">0</b>日</span></div></header>
+
+<section id="home" class="screen active">
+<div class="hero"><div class="emoji">🚀🔬</div><h1>理科アドベンチャーへようこそ！</h1><p>「覚える」だけじゃない。<br>見て、考えて、実験して、理科博士を目指そう！</p><button class="btn primary" onclick="openUnit()">🔥 最初の冒険へ</button></div>
+<div class="section"><h2>🗺️ 理科の冒険マップ</h2><p class="note">単元をクリアすると次のステージが開きます。</p><div class="grid" id="map"></div></div>
+<div class="section"><h2>🏆 バッジ</h2><div class="badge-grid" id="badges"></div></div>
+</section>
+
+<section id="unit" class="screen">
+<button class="btn back" onclick="show('home')">← マップへ戻る</button>
+<div class="section"><h1>🔥 ものの燃え方・気体</h1><p class="note">ろうそくの秘密を探る冒険。まずは「なぜ燃えるの？」を理解しよう！</p>
+<div class="cards">
+<div class="learn-card"><b>🔥 燃えるには3つ</b><p>①燃えるもの　②酸素　③燃えるための十分な温度。この3つがそろうと燃焼が起こります。</p></div>
+<div class="learn-card"><b>🌬️ 空気の主役</b><p>空気の約78%は窒素、約21%は酸素。ろうそくが燃えるのに大切なのは酸素です。</p></div>
+<div class="learn-card"><b>🧪 二酸化炭素</b><p>ものが燃えると二酸化炭素が増えます。二酸化炭素を石灰水に通すと白くにごります。</p></div>
+<div class="learn-card"><b>💡 燃えると？</b><p>燃焼すると熱や光が出ます。びんをかぶせると酸素が減り、やがて火が消えます。</p></div>
+</div></div>
+<div class="section"><h2>🧪 実験シミュレーター</h2><div class="experiment"><div class="scene"><div class="gas">🌬️ 🌬️</div><div class="jar"></div><div id="flame" class="flame">🔥</div></div><div><h3>びんをかぶせるとどうなる？</h3><p class="note">ろうそくにびんをかぶせる操作をして、火の変化を観察しよう。</p><button class="btn primary" onclick="runExperiment()">🫙 びんをかぶせる</button><button class="btn light" onclick="resetExperiment()">↺ もう一度</button><div id="expResult" class="resultbox">観察ポイント：火はどうなるかな？</div></div></div></div>
+<div class="section"><h2>🎯 3つのステップをクリアしよう</h2><div class="grid">
+<div class="unit"><div class="big">📖</div><h3>① 学ぶ</h3><p>基本を理解する</p><button class="btn blue" onclick="markLearn()">学習完了</button></div>
+<div class="unit"><div class="big">🧪</div><h3>② 実験</h3><p>燃焼の変化を観察</p><button class="btn green" onclick="runExperiment();markExperiment()">実験する</button></div>
+<div class="unit"><div class="big">❓</div><h3>③ クイズ</h3><p>15問に挑戦</p><button class="btn primary" onclick="startQuiz()">クイズ開始</button></div>
+</div></div>
+</section>
+
+<section id="quiz" class="screen">
+<button class="btn back" onclick="show('unit')">← 単元へ戻る</button>
+<div class="section"><div class="quizhead"><span id="qnum">第1問</span><span>⭐ <b id="qscore">0</b></span></div><div class="progress"><i id="qbar"></i></div><div id="quizbody"></div></div>
+</section>
+
+<section id="review" class="screen">
+<button class="btn back" onclick="show('unit')">← 単元へ戻る</button><div class="section"><h1>📚 間違えた問題を復習</h1><div id="reviewList"></div></div>
+</section>
+
+<section id="complete" class="screen">
+<div class="hero"><div class="rank">🏆</div><h1>ステージクリア！</h1><p id="completeText"></p><button class="btn primary" onclick="show('home')">🗺️ マップへ</button> <button class="btn light" onclick="startQuiz()">もう一度クイズ</button></div>
+<div class="section"><h2>📚 次にやること</h2><p class="note">間違えた問題を復習してから、もう一度挑戦すると知識が定着します。</p><button class="btn blue" onclick="showReview()">復習する</button></div>
+</section>
+<div class="footer">小学6年生 理科｜学んで・実験して・考える</div>
+</div>
+<script>
+const qs=[
+["空気の中で、いちばん多く入っている気体は？",["酸素","二酸化炭素","窒素","水素"],2,"空気の約78%は窒素です。"],
+["空気の中に約21%入っている気体は？",["酸素","窒素","二酸化炭素","水蒸気"],0,"酸素は空気の約21%をしめています。"],
+["ろうそくが燃えるために必要な気体は？",["窒素","酸素","二酸化炭素","水素"],1,"燃焼には酸素が必要です。"],
+["ろうそくを燃やし続けると、空気中の酸素は？",["増える","変わらない","減る","なくならない"],2,"燃焼に酸素が使われるので減っていきます。"],
+["ろうそくを燃やすと二酸化炭素は？",["増える","減る","変わらない","消える"],0,"ものが燃えると二酸化炭素ができます。"],
+["二酸化炭素を調べる液体は？",["食塩水","石灰水","水","うすい塩酸"],1,"石灰水に二酸化炭素を通すと白くにごります。"],
+["二酸化炭素を石灰水に通すとどうなる？",["赤くなる","青くなる","白くにごる","泡が出る"],2,"白くにごる反応を利用して調べられます。"],
+["酸素の中にろうそくを入れると？",["激しく燃える","すぐ消える","変わらない","凍る"],0,"酸素が多いと燃焼がよりさかんになります。"],
+["燃焼に必要な3つの条件として正しいものは？",["水・空気・光","燃える物・酸素・十分な温度","窒素・水・熱","二酸化炭素・光・水"],1,"燃える物、酸素、十分な温度の3つです。"],
+["びんをかぶせたろうそくが消える主な理由は？",["水がなくなる","酸素が少なくなる","窒素が増える","光がなくなる"],1,"びんの中の酸素が燃焼に使われ、少なくなるためです。"],
+["ものが燃えると出るものは？",["熱や光","氷","音だけ","水だけ"],0,"燃焼では熱や光が出ます。"],
+["ものを燃やすはたらきがない気体は？",["酸素","二酸化炭素","空気","水蒸気"],1,"二酸化炭素にはものを燃やすはたらきがありません。"],
+["空気の約78%をしめるのは？",["酸素","二酸化炭素","窒素","水素"],2,"空気の大部分は窒素です。"],
+["酸素と窒素では、空気中に多いのは？",["酸素","窒素","同じ","どちらもない"],1,"窒素は約78%、酸素は約21%です。"],
+["燃焼について正しい説明は？",["酸素があると燃えやすい","二酸化炭素が多いほど燃える","窒素だけで燃える","水があるほど燃える"],0,"酸素は燃焼を助ける気体です。"]
+];
+let state=JSON.parse(localStorage.getItem("rikaAdventure")||'{"xp":0,"learn":false,"experiment":false,"cleared":false,"mistakes":[],"streak":0,"last":""}');
+let qi=0,score=0,answered=false;
+function save(){localStorage.setItem("rikaAdventure",JSON.stringify(state));updateStats();renderMap();renderBadges()}
+function updateStats(){document.getElementById("xp").textContent=state.xp;document.getElementById("level").textContent=Math.floor(state.xp/100)+1;document.getElementById("streak").textContent=state.streak}
+function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");window.scrollTo(0,0)}
+function openUnit(){show("unit")}
+function markLearn(){if(!state.learn){state.learn=true;state.xp+=20;save()}alert("📖 学習クリア！ +20 XP")}
+function markExperiment(){if(!state.experiment){state.experiment=true;state.xp+=20;save()}}
+function runExperiment(){const f=document.getElementById("flame"),r=document.getElementById("expResult");f.classList.add("off");r.innerHTML="👀 <b>観察結果：</b>しばらくすると火が消えました。<br>💡 びんの中の酸素が燃焼に使われ、少なくなったからです。";if(!state.experiment){state.experiment=true;state.xp+=20;save()}}
+function resetExperiment(){document.getElementById("flame").classList.remove("off");document.getElementById("expResult").textContent="観察ポイント：火はどうなるかな？"}
+function startQuiz(){qi=0;score=0;answered=false;show("quiz");renderQ()}
+function renderQ(){const q=qs[qi];document.getElementById("qnum").textContent="第"+(qi+1)+"問 / "+qs.length;document.getElementById("qscore").textContent=score;document.getElementById("qbar").style.width=(qi/qs.length*100)+"%";document.getElementById("quizbody").innerHTML='<div class="question">'+q[0]+'</div><div class="choices">'+q[1].map((c,i)=>'<button class="choice" onclick="answer('+i+')">'+String.fromCharCode(65+i)+". "+c+'</button>').join("")+'</div><div id="fb" class="feedback"></div>'}
+function answer(i){if(answered)return;answered=true;const q=qs[qi],buttons=document.querySelectorAll(".choice"),fb=document.getElementById("fb");buttons.forEach((b,j)=>{b.disabled=true;if(j===q[2])b.classList.add("correct");if(j===i&&i!==q[2])b.classList.add("wrong")});const ok=i===q[2];if(ok){score++;state.xp+=10;fb.className="feedback ok";fb.innerHTML="🎉 <b>正解！</b><br>"+q[3]}else{state.mistakes.push(qi);fb.className="feedback ng";fb.innerHTML="😢 <b>おしい！</b><br>正解は「"+q[1][q[2]]+"」<br>"+q[3]}fb.style.display="block";const next=document.createElement("button");next.className="btn primary";next.style.marginTop="14px";next.textContent=qi===qs.length-1?"結果を見る":"次の問題へ";next.onclick=()=>{if(qi===qs.length-1)finishQuiz();else{qi++;answered=false;renderQ()}};document.getElementById("quizbody").appendChild(next);save()}
+function finishQuiz(){state.mistakes=[...new Set(state.mistakes)];if(score>=12&&!state.cleared){state.cleared=true;state.xp+=50}document.getElementById("completeText").innerHTML="15問中 <b>"+score+"問正解</b>！<br>"+(score===15?"👑 パーフェクト！理科博士レベルです！":score>=12?"🏆 単元クリア！燃焼マスターです！":"💪 もう一度復習して、さらに上を目指そう！");show("complete");save()}
+function showReview(){const list=document.getElementById("reviewList");const ids=[...new Set(state.mistakes)];if(!ids.length){list.innerHTML="<p class='note'>🎉 今のところ復習問題はありません！</p>";show("review");return}list.innerHTML=ids.map(id=>'<div class="mistake"><b>Q. '+qs[id][0]+'</b><p>答え：<strong>'+qs[id][1][qs[id][2]]+'</strong></p><p class="note">'+qs[id][3]+'</p></div>').join("")+'<button class="btn primary" onclick="startQuiz()">もう一度15問に挑戦</button>';show("review")}
+function renderMap(){const cards=[["🔥","ものの燃え方・気体",state.cleared?100:Math.round((state.learn?20:0)+(state.experiment?20:0)),"open"],["🧍","人の体",0,"lock"],["🌱","植物",0,"lock"],["🧪","水溶液",0,"lock"],["🌙","月・太陽・地球",0,"lock"],["🌍","大地・地層",0,"lock"],["🌳","生物と環境",0,"lock"],["⚡","電気",0,"lock"],["⚖️","てこ",0,"lock"]];document.getElementById("map").innerHTML=cards.map((c,i)=>'<div class="unit '+c[3]+'"><div class="big">'+c[0]+'</div><h3>'+c[1]+'</h3><div class="meter"><i style="width:'+c[2]+'%"></i></div><p>'+c[2]+'% '+(c[3]==="lock"?"🔒 まずは前のステージをクリア":"▶ 挑戦できます")+'</p>'+(c[3]==="open"?'<button class="btn primary" onclick="openUnit()">冒険する</button>':'').toString()+'</div>').join("")}
+function renderBadges(){const bs=[["🔥","燃焼マスター",state.cleared],["🧪","実験探検家",state.experiment],["📖","学習スタート",state.learn],["💯","パーフェクト",false],["🚀","7日連続",state.streak>=7],["👑","理科博士",state.cleared&&state.xp>=200]];document.getElementById("badges").innerHTML=bs.map(b=>'<div class="badgecard '+(b[2]?"":"locked")+'"><div>'+b[0]+'</div><b>'+b[1]+'</b><p>'+ (b[2]?"獲得！":"未獲得")+'</p></div>').join("")}
+renderMap();renderBadges();updateStats();
+</script></body></html>
