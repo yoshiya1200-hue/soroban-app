@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🔥 小6理科クイズ｜ものの燃え方・気体</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,"Yu Gothic",sans-serif;background:linear-gradient(135deg,#fff7d6,#e5f7ff);color:#263238}.wrap{max-width:720px;margin:auto;padding:20px}.hero,.card{background:#fff;border-radius:24px;padding:24px;box-shadow:0 8px 25px #0002}.hero{text-align:center;margin-bottom:14px}.fire{font-size:58px}h1{margin:5px 0;font-size:30px}.sub{color:#607d8b;font-weight:700}.status{display:flex;gap:10px;margin:12px 0}.badge{flex:1;background:#fff;border-radius:14px;padding:10px;text-align:center;font-weight:800;box-shadow:0 4px 12px #0001}.bar{height:11px;background:#dce6ea;border-radius:20px;margin-bottom:18px;overflow:hidden}.fill{height:100%;width:0;background:#ff9800;transition:.3s}.qno{color:#ef6c00;font-weight:900}.q{font-size:24px;font-weight:900;line-height:1.5;margin:8px 0 18px}.choices{display:grid;gap:11px}button{font:inherit;font-weight:800;cursor:pointer}.choice{text-align:left;border:3px solid #e0e0e0;background:#fafafa;border-radius:15px;padding:14px}.choice:hover{background:#fff8e1;border-color:#ffb74d}.choice:disabled{cursor:default}.ok{background:#e8f5e9!important;border-color:#43a047!important}.ng{background:#ffebee!important;border-color:#e53935!important}.feedback{display:none;margin-top:16px;padding:16px;border-radius:17px;line-height:1.6}.good{background:#e8f5e9}.bad{background:#ffebee}.next,.restart{display:none;width:100%;border:0;border-radius:15px;padding:14px;margin-top:14px;color:#fff;background:#ff9800}.result{display:none;text-align:center}.trophy{font-size:65px}.big{font-size:45px;font-weight:900;color:#ef6c00}.restart{display:inline-block;background:#1976d2}.tip{text-align:center;color:#607d8b;font-size:13px;margin:14px}
+</style></head><body><main class="wrap">
+<section class="hero"><div class="fire">🔥</div><h1>理科クイズ！</h1><p class="sub">ものの燃え方・気体をマスターしよう</p></section>
+<div class="status"><div class="badge">📘 問題 <span id="num">1</span>/15</div><div class="badge">⭐ スコア <span id="score">0</span></div></div>
+<div class="bar"><div class="fill" id="fill"></div></div>
+<section class="card" id="quiz"><div class="qno" id="qno"></div><div class="q" id="q"></div><div class="choices" id="choices"></div><div class="feedback" id="fb"><b id="title"></b><div id="exp"></div></div><button class="next" id="next" onclick="next()">次の問題へ ➡️</button></section>
+<section class="card result" id="result"><div class="trophy" id="trophy">🏆</div><h2>クイズ終了！</h2><div class="big"><span id="final">0</span>/15</div><h2 id="rank"></h2><p id="comment"></p><button class="restart" onclick="location.reload()">🔄 もう一度挑戦</button></section>
+<p class="tip">💡 間違えても大丈夫！解説を読んで覚えればOK！</p>
+</main>
+<script>
+const qs=[
+["空気の中で、いちばん多い気体は？",["酸素","二酸化炭素","窒素","水蒸気"],2,"空気の約78%が窒素。酸素は約21%です。"],
+["空気中に約21%入っている気体は？",["酸素","窒素","二酸化炭素","水素"],0,"空気の約21%が酸素。ものを燃やすはたらきがあります。"],
+["ろうそくが燃えるために必要な気体は？",["窒素","酸素","二酸化炭素","ヘリウム"],1,"酸素には、ものを燃やすはたらきがあります。"],
+["ろうそくを燃やし続けると、酸素はどうなる？",["増える","減る","変わらない","水になる"],1,"燃えるときに酸素が使われるので、酸素は減ります。"],
+["ろうそくを燃やすと、二酸化炭素はどうなる？",["増える","減る","なくなる","酸素になる"],0,"ろうそくが燃えると二酸化炭素ができるので増えます。"],
+["二酸化炭素を調べる液体は？",["水","食塩水","石灰水","砂糖水"],2,"石灰水に二酸化炭素を通すと白くにごります。"],
+["二酸化炭素を石灰水に通すと？",["赤くなる","青くなる","白くにごる","泡が消える"],2,"二酸化炭素が入ると石灰水は白くにごります。"],
+["酸素の中でろうそくを燃やすと？",["弱く燃える","同じ","激しく燃える","燃えない"],2,"酸素が多いと、ものはより激しく燃えます。"],
+["燃えるための3条件は？",["燃える物・酸素・十分な温度","水・氷・空気","二酸化炭素・水・冷たさ","光・水・土"],0,"燃える物、酸素、十分な温度の3つが大切です。"],
+["びんの中のろうそくが消えるのはなぜ？",["水を吸うから","酸素が少なくなるから","窒素がなくなるから","光がなくなるから"],1,"燃え続けることで酸素が使われ、少なくなるためです。"],
+["ものが燃えるときに出るものは？",["熱や光","氷","土","音だけ"],0,"燃焼では熱や光が出ます。炎が熱く明るいのはそのためです。"],
+["ものを燃やすはたらきがない気体は？",["酸素","二酸化炭素","どちらも燃やす","同じ"],1,"二酸化炭素には、ものを燃やすはたらきがありません。"],
+["空気の約78%を占める気体は？",["酸素","窒素","二酸化炭素","水素"],1,"78%＝窒素、21%＝酸素、とセットで覚えよう！"],
+["酸素と窒素、どちらが多い？",["酸素","窒素","同じ","日によって変わる"],1,"窒素約78%、酸素約21%なので、窒素のほうが多いです。"],
+["🔥最終問題！正しいのはどれ？",["酸素がなくても燃える","二酸化炭素が多いほど燃える","酸素があると燃えやすい","冷たくするとよく燃える"],2,"燃える物・酸素・十分な温度がそろうと、ものは燃えます。"]
+];
+let i=0,s=0,done=false;
+function show(){done=false;let x=qs[i];num.textContent=i+1;score.textContent=s;qno.textContent="🔥 第"+(i+1)+"問";q.textContent=x[0];fill.style.width=(i/15*100)+"%";choices.innerHTML="";x[1].forEach((c,n)=>{let b=document.createElement("button");b.className="choice";b.textContent=["🅰️","🅱️","🅲️","🅳️"][n]+" "+c;b.onclick=()=>answer(n,b);choices.appendChild(b)});fb.style.display="none";nextBtn(false)}
+function answer(n,b){if(done)return;done=true;let x=qs[i],bs=document.querySelectorAll(".choice");bs.forEach(z=>z.disabled=true);bs[x[2]].classList.add("ok");if(n===x[2]){s++;b.classList.add("ok");title.textContent="🎉 正解！すごい！";fb.className="feedback good"}else{b.classList.add("ng");title.textContent="😯 おしい！正解は「"+x[1][x[2]]+"」";fb.className="feedback bad"}exp.textContent="💡 "+x[3];fb.style.display="block";score.textContent=s;fill.style.width=((i+1)/15*100)+"%";nextBtn(true)}
+function nextBtn(show){next.style.display=show?"block":"none";next.textContent=i===14?"結果を見る 🏆":"次の問題へ ➡️"}
+function next(){if(i<14){i++;show()}else{quiz.style.display="none";result.style.display="block";final.textContent=s;let r,c,t;if(s===15){r="👑 理科マスター！";c="パーフェクト！すごい！";t="👑"}else if(s>=12){r="🏆 理科博士！";c="かなり強い！";t="🏆"}else if(s>=9){r="⭐ 理科名人！";c="あと少し！まちがえた問題を復習しよう。";t="⭐"}else if(s>=6){r="💪 理科チャレンジャー！";c="解説を読んでもう一度挑戦しよう！";t="💪"}else{r="🌱 理科ビギナー！";c="ここからがスタート！もう一回やってみよう！";t="🌱"}rank.textContent=r;comment.textContent=c;trophy.textContent=t}}
+show();
+</script></body></html>
