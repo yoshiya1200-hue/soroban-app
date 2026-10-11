@@ -127,10 +127,34 @@ else if(current===6)scene="<div class='live-scene'><div class='live-chain'>"+("�
 else if(current===7)scene="<div class='live-scene live-electric'>"+("🔋").repeat(v)+" → <span style='font-size:"+(38+v*18)+"px'>💡</span><br><small>⚡ ● ● ●</small></div>";
 else scene="<div class='live-scene'><div class='live-lever2'>📦━━━━━━━━━━👇</div><div>支点から <b>"+z.format(v)+"</b> の位置</div></div>";
 h.innerHTML="<div class='live-title'>⚡ 条件を動かすと、実験のようすも変わる！</div>"+scene+"<div class='scene-caption'>"+z.label+"：<b>"+z.format(v)+"</b></div><div class='live-chart'><b>📊 結果の変化</b><div class='chart-track'><div class='chart-fill' style='width:"+score+"%'></div></div><div class='chart-label'>"+z.result(v)+"</div></div>"}
-function setupComparison(){const x=compareConfig(current),z=interactiveCompare(current),q=document.getElementById("compareQuestion"),pred=document.getElementById("comparePrediction"),res=document.getElementById("compareResults"),con=document.getElementById("compareConclusion");compareValues={value:z.a,pred:null};if(!q)return;q.innerHTML="<span class='compare-step'>STEP 1</span><h3>🔬 "+x.title+"</h3><div class='compare-instruction'>"+x.action+"</div><p class='note'><b>変える条件：</b>"+z.label+"<br>スライダーを動かして、実験する条件を自分で決めよう。</p><div class='interactive-control'><div class='slider-caption'><span>小さくする</span><strong id='compareValue'>"+z.format(z.a)+"</strong><span>大きくする</span></div><div class='slider-row single-slider'><input type='range' min='"+z.min+"' max='"+z.max+"' step='"+z.step+"' value='"+z.a+"' oninput='updateCompareSlider(this.value)'></div></div><div id='liveSimulation' class='live-sim'></div>";pred.innerHTML="<div class='compare-prediction'><span class='compare-step'>STEP 2</span><div class='compare-question'>"+x.question+"</div><button class='compare-btn' onclick='predictComparison(0)'>この条件なら、どうなると思う？</button><button id='compareRunBtn' class='btn primary compare-action' onclick='runComparison()' disabled>🔬 この条件で実験する</button></div>";res.innerHTML="<div class='compare-card'><b>実験前</b><p>"+z.format(z.a)+"<br>まだ実験していません</p></div>";con.textContent="スライダーを動かして、まず条件を決めよう！";renderLiveSimulation()}
-function updateCompareSlider(v){const z=interactiveCompare(current);compareValues.value=Number(v);const el=document.getElementById("compareValue");if(el)el.textContent=z.format(Number(v));compareValues.pred=null;const run=document.getElementById("compareRunBtn");if(run)run.disabled=true;renderLiveSimulation();document.getElementById("compareConclusion").textContent="この条件でどうなるか予想してみよう！"}
-function predictComparison(){compareValues.pred=1;document.getElementById("compareRunBtn").disabled=false;document.getElementById("compareConclusion").textContent="🤔 予想しました。実験して確かめよう！"}
-function runComparison(){const x=compareConfig(current),z=interactiveCompare(current),v=Number(compareValues.value);document.getElementById("compareResults").innerHTML="<div class='compare-card done'><b>🔬 実験結果</b><p>条件："+z.format(v)+"</p><p>"+z.result(v)+"</p></div>";document.getElementById("comparePrediction").innerHTML="<div class='compare-prediction'><span class='compare-step'>STEP 3</span><div class='compare-question'>なぜそうなったのかな？</div><div class='compare-instruction'>"+x.why+"</div><button class='btn primary' onclick='tryAnotherCondition()'>🔄 条件を変えてもう一度</button></div>";document.getElementById("compareConclusion").innerHTML="🎉 <b>実験完了！</b> 条件を変えると結果も変わります。"}
+function setupComparison(){
+ const x=compareConfig(current),z=interactiveCompare(current),q=document.getElementById("compareQuestion"),pred=document.getElementById("comparePrediction"),res=document.getElementById("compareResults"),con=document.getElementById("compareConclusion");
+ compareValues={value:z.a,pred:null};if(!q)return;
+ q.innerHTML="<span class='compare-step'>STEP 1</span><h3>🔬 "+x.title+"</h3><div class='compare-instruction'>"+x.action+"</div><p class='note'><b>変える条件：</b>"+z.label+"<br><span id='directionText'>まずは条件を大きくしてみよう。</span></p><div class='interactive-control'><div class='direction-buttons'><button class='direction-btn active' onclick='changeDirection(1,this)'>⬆️ 大きくする</button><button class='direction-btn' onclick='changeDirection(-1,this)'>⬇️ 小さくする</button></div><div class='slider-caption'><span>"+z.format(z.min)+"</span><strong id='compareValue'>"+z.format(z.a)+"</strong><span>"+z.format(z.max)+"</span></div><div class='slider-row single-slider'><input id='conditionSlider' type='range' min='"+z.min+"' max='"+z.max+"' step='"+z.step+"' value='"+z.a+"' oninput='updateCompareSlider(this.value)'></div></div><div id='liveSimulation' class='live-sim'></div>";
+ pred.innerHTML="<div class='compare-prediction'><span class='compare-step'>STEP 2</span><div class='compare-question' id='predictionQuestion'>"+x.question+"</div><button id='compareRunBtn' class='btn primary compare-action' onclick='runComparison()'>🔬 この条件で実験する</button></div>";
+ res.innerHTML="<div class='compare-card'><b>実験前</b><p>条件を動かしてみよう</p></div>";
+ con.textContent="まず「大きくする」か「小さくする」を選び、結果の変化を見てみよう！";
+ renderLiveSimulation();
+}
+function changeDirection(dir,btn){
+ document.querySelectorAll(".direction-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");
+ const z=interactiveCompare(current),sl=document.getElementById("conditionSlider");
+ const v=dir>0?z.max:z.min;sl.value=v;compareValues.value=v;
+ document.getElementById("compareValue").textContent=z.format(v);
+ document.getElementById("directionText").textContent=dir>0?"条件を大きくすると、結果はどう変わるかな？":"条件を小さくすると、結果はどう変わるかな？";
+ renderLiveSimulation();document.getElementById("compareConclusion").textContent="この条件でどうなるか、考えてみよう！";
+}
+function updateCompareSlider(v){
+ const z=interactiveCompare(current);compareValues.value=Number(v);
+ document.getElementById("compareValue").textContent=z.format(Number(v));
+ renderLiveSimulation();document.getElementById("compareConclusion").textContent="スライダーを動かして、条件を変えてみよう！";
+}
+function runComparison(){
+ const x=compareConfig(current),z=interactiveCompare(current),v=Number(compareValues.value);
+ document.getElementById("compareResults").innerHTML="<div class='compare-card done'><b>🔬 実験結果</b><p>"+z.label+"："+z.format(v)+"</p><p>"+z.result(v)+"</p></div>";
+ document.getElementById("comparePrediction").innerHTML="<div class='compare-prediction'><span class='compare-step'>STEP 3</span><div class='compare-question'>なぜそうなったのかな？</div><div class='compare-instruction'>"+x.why+"</div><button class='btn primary' onclick='tryAnotherCondition()'>🔄 反対の条件でも試す</button></div>";
+ document.getElementById("compareConclusion").innerHTML="🎉 <b>実験完了！</b> 条件を変えると、結果も変わることがわかりました。";
+}
 function tryAnotherCondition(){setupComparison()}
 function resetVisual(){openUnit(current)}
 function predict(i){const x=experimentConfig(current),bs=document.querySelectorAll("#predictionChoices .choice");bs.forEach((b,j)=>{b.disabled=true;if(j===x.c)b.classList.add("correct");if(j===i&&i!==x.c)b.classList.add("wrong")});document.getElementById("experimentBtn").disabled=false;const ok=i===x.c;document.getElementById("expResult").innerHTML=ok?"🎯 <b>予想的中！</b> 実験で確かめてみよう。":"🤔 <b>予想は"+String.fromCharCode(65+x.c)+"。</b> 実験で確かめてみよう。";state.xp+=1;save()}
