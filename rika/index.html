@@ -65,6 +65,17 @@ let current=0,qi=0,score=0,answered=false;
 function save(){localStorage.setItem("rikaAdventure9",JSON.stringify(state));updateStats();renderMap();renderBadges();}
 function updateStats(){document.getElementById("xp").textContent=state.xp;document.getElementById("level").textContent=Math.floor(state.xp/100)+1;document.getElementById("streak").textContent=state.streak}
 function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");window.scrollTo(0,0)}
+function experimentConfig(i){return[
+{q:"びんをかぶせたら、ろうそくはどうなる？",a:["燃え続ける","しばらくすると消える","もっと大きくなる"],c:1},
+{q:"運動すると、心臓の動きはどうなる？",a:["速くなる","止まる","必ず遅くなる"],c:0},
+{q:"植物に光を当てると、何ができる？",a:["養分をつくる","水がなくなるだけ","土になる"],c:0},
+{q:"食塩水を加熱して水を蒸発させると？",a:["食塩が残る","何も残らない","食塩が空気になる"],c:0},
+{q:"月の位置を変えると、見える形は？",a:["変わる","絶対に変わらない","月が消える"],c:0},
+{q:"地層を下から上へ見ると、どちらが古いことが多い？",a:["下の層","上の層","いつも同じ"],c:0},
+{q:"食物連鎖で、植物が減ると？",a:["動物にも影響する","何も変わらない","石が増える"],c:0},
+{q:"スイッチをONにすると？",a:["道がつながり電球が光る","道が切れて暗くなる","電池が消える"],c:0},
+{q:"力点を支点から遠くすると？",a:["少ない力で動かしやすい","必ず重くなる","動かなくなる"],c:0}
+][i]}
 function visualFor(i){const v=[
 ["🔥","<div class='flame2'>🔥</div><p class='note'>酸素があると燃焼が続きます。</p>","🫙 びんをかぶせる","runFire()"],
 ["🫀","<div class='heart'>❤️</div><div class='flow'><span class='node'>🫁 肺</span><span class='arrow'>→</span><span class='node'>❤️ 心臓</span><span class='arrow'>→</span><span class='node'>🧍 全身</span></div>","🫁 呼吸を観察","runBody()"],
@@ -76,11 +87,11 @@ function visualFor(i){const v=[
 ["⚡","<div class='circuit-scene' id='circuitScene'><div class='cwire top'></div><div class='cwire left'></div><div class='cwire right'></div><div class='cwire bottom-left'></div><div class='cwire bottom-right'></div><div class='cbattery'>🔋</div><div class='cbulb'>💡</div><div class='cgap'></div><div class='cswitch'>スイッチ OFF</div><div class='electron'></div></div><p class='note'>青い玉＝電気の流れをイメージしたもの</p>","🔘 スイッチを入れる","runElectric()"],
 ["⚖️","<div class='lever'></div><div class='fulcrum'></div><div class='weight'>📦</div><div class='force'>👇</div>","👇 力を加える","runLever()"]
 ];return v[i]}
-function openUnit(i){current=i;const u=units[i];document.getElementById("unitTitle").textContent=u.emoji+" "+u.title;document.getElementById("unitIntro").textContent=u.intro;document.getElementById("learnCards").innerHTML=u.cards.map(c=>"<div class='learn-card'><b>"+c[0]+"</b><p>"+c[1]+"</p></div>").join("");
-const v=visualFor(i);document.getElementById("experimentSection").innerHTML="<div class='section'><h2>🧪 ミニ実験＋動く図解</h2><div class='viz'><div class='diagram' id='visual'>"+v[1]+"</div><div><h3>"+v[0]+" 観察してみよう</h3><p class='note'>まず結果を予想し、ボタンを押して変化を見よう。動いた部分が何を表すか考えてみてね。</p><div class='experiment-actions'><button class='btn primary' onclick='"+v[3]+"()'>"+v[2]+"</button><button class='btn light' onclick='resetVisual()'>↺ リセット</button></div><div id='expResult' class='resultbox'>観察ポイント：まず予想してから実験しよう！</div></div></div></div>";
-document.getElementById("tip").style.display="none";show("unit")}
-function resetVisual(){openUnit(current);if(current===7)setResult("🔘 <b>スイッチ OFF：</b>道が途中で切れています。電流は流れず、電球も光りません。ボタンを押して道をつないでみよう！") }
-function setResult(html){document.getElementById("expResult").innerHTML=html;state.xp+=2;save()}
+function openUnit(i){current=i;const u=units[i];document.getElementById("unitTitle").textContent=u.emoji+" "+u.title;document.getElementById("unitIntro").textContent=u.intro;document.getElementById("learnCards").innerHTML=u.cards.map(c=>"<div class='learn-card'><b>"+c[0]+"</b><p>"+c[1]+"</p></div>").join("");const v=visualFor(i),x=experimentConfig(i);document.getElementById("experimentSection").innerHTML="<div class='section'><h2>🧪 予想してから実験！</h2><div class='viz'><div class='diagram' id='visual'>"+v[1]+"</div><div><h3>"+v[0]+" どうなると思う？</h3><p class='note'><b>① まず予想</b> → ② 答えを確認 → ③ 実験を見る → ④ なぜか考える</p><div class='choices' id='predictionChoices'>"+x.a.map((a,j)=>"<button class='choice' onclick='predict("+j+")'>"+String.fromCharCode(65+j)+". "+a+"</button>").join("")+"</div><div class='experiment-actions'><button id='experimentBtn' class='btn primary' onclick='runPredictedExperiment()' disabled>"+v[2]+"</button><button class='btn light' onclick='resetVisual()'>↺ もう一度</button></div><div id='expResult' class='resultbox'>まだ実験はしていません。まず予想を選ぼう！</div></div></div></div>";document.getElementById("tip").style.display="none";show("unit")}
+function resetVisual(){openUnit(current)}
+function predict(i){const x=experimentConfig(current),bs=document.querySelectorAll("#predictionChoices .choice");bs.forEach((b,j)=>{b.disabled=true;if(j===x.c)b.classList.add("correct");if(j===i&&i!==x.c)b.classList.add("wrong")});document.getElementById("experimentBtn").disabled=false;const ok=i===x.c;document.getElementById("expResult").innerHTML=ok?"🎯 <b>予想的中！</b> 実験で確かめてみよう。":"🤔 <b>予想は"+String.fromCharCode(65+x.c)+"。</b> 実験で確かめてみよう。";state.xp+=1;save()}
+function runPredictedExperiment(){[runFire,runBody,runPlant,runSolution,runSpace,runEarth,runEnvironment,runElectric,runLever][current]()}
+
 function runFire(){document.getElementById("visual").innerHTML="<div class='flame2' style='opacity:.25'>🔥</div><div class='gas'>🌬️ 💨</div>";setResult("🔥 <b>火が消えました。</b><br>酸素が燃焼に使われ、少なくなったためです。")}
 function runBody(){document.getElementById("visual").innerHTML="<div class='heart'>❤️</div><div class='flow'><span class='node'>🫁 酸素</span><span class='arrow'>→</span><span class='node'>❤️ 血液</span><span class='arrow'>→</span><span class='node'>💪 筋肉</span></div>";setResult("🫁 <b>酸素の旅：</b>肺から取り入れた酸素は血液によって全身へ運ばれます。")}
 function runPlant(){document.getElementById("visual").innerHTML="<div class='plant'>🌱</div><div class='flow'><span class='node'>☀️ 光</span><span class='arrow'>＋</span><span class='node'>💧 水</span><span class='arrow'>＋</span><span class='node'>🌬️ CO₂</span><span class='arrow'>→</span><span class='node'>🍚 養分</span></div>";setResult("🌱 <b>光合成：</b>光を利用して、二酸化炭素と水から養分をつくります。")}
